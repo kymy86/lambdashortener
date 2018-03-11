@@ -1,0 +1,29 @@
+---
+prod:
+  runtime: python3.6
+  debug: true
+  keep_warm: false
+  log_level: DEBUG
+  apigateway_enabled: true
+  cors: true
+  project_name: lambdashortener
+  lambda_description: Create a serverless url shortener
+  timeout_seconds: 30
+  memory_size: 128
+  use_precompiled_packages: true
+  exclude:
+  - .vscode
+  - README.md
+  - venv
+  - LICENSE
+  - .gitignore
+  - .git
+  - parameters.json
+  app_function: shortener.app
+  manage_roles: false
+  role_name: ShortenerRole
+  aws_environment_variables:
+    BUCKET_URL: #bucket url from CloudFormation template
+    BUCKET_NAME: #bucket name from CloudFormation template
+
+

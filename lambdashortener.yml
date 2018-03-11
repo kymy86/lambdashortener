@@ -1,0 +1,59 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: 
+    This script provisions the infrastructure for implementing the serverless URL shortener service on AWS
+Resources:
+  ShortenerBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        AccessControl: PublicRead
+        WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: index.html
+  ShortenerURLBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref ShortenerBucket
+        PolicyDocument:
+          Statement:
+          - Action: 
+              - s3:GetObject
+            Effect: Allow
+            Resource: !Sub
+              arn:aws:s3:::${ShortenerBucket}/*
+            Principal: "*"
+  ZappaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+          - Effect: Allow
+            Principal:
+              Service: 
+              - lambda.amazonaws.com
+              - apigateway.amazonaws.com
+            Action: "sts:AssumeRole"
+        Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+            - Effect: Allow
+              Action:
+              - "logs:*"
+              Resource: "arn:aws:logs:*:*:*"
+            - Effect: Allow
+              Action: lambda:InvokeFunction
+              Resource: "*"
+            - Effect: Allow
+              Action:
+              - s3:PutObject
+              Resource: !Sub
+                arn:aws:s3:::${ShortenerBucket}/*
+        Path: /
+        RoleName: ShortenerRole
+Outputs:
+  ShortenerWebsiteURL:
+    Value: !GetAtt ShortenerBucket.WebsiteURL
+  BucketName:
+    Value: !Ref ShortenerBucket
